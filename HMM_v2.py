@@ -42,6 +42,10 @@ def Emission_prob(train, mapping, sth_counter):
     # olasilik hesaplanacak !!!!!!
     return emission_list
 
+def viterbi(init_prob, trans_prob, em_prob):
+    return None
+
+
 #import matplotlib.pyplot as plt
 sth_counter = 0 # _ _ lerin sayisina bakilacak
 docs = pd.read_csv("docs.csv", header=None)
@@ -52,8 +56,8 @@ mapping = { char:value for value,char in enumerate(string.ascii_lowercase)}
 for i in range(len(train)):
     if (train[i] == '_ _'):
         sth_counter += 1
-sw_prob = Start_with_prob(train, mapping, sth_counter)
+init_prob = Start_with_prob(train, mapping, sth_counter)
 trans_prob = Transition_prob(train, mapping, sth_counter)
-emission_prob = Emission_prob(train, mapping, sth_counter)
+em_prob = Emission_prob(train, mapping, sth_counter)
 a = 1
 
