@@ -2,6 +2,7 @@ from hmmlearn import hmm
 import numpy as np
 import pandas as pd
 import string
+import operator
 
 def Start_with_prob(train, mapping, sth_counter):
     i = 0
@@ -37,13 +38,28 @@ def Emission_prob(train, mapping, sth_counter):
         for j in mapping:
             emission_list[i][j]=0
     for i in range(len(train)):
-        if(train[i][0][0] != train[i][0][2]):
+        #if(train[i][0][0] != train[i][0][2]):
+        if(train[i][0][0] != '_'):
             emission_list[train[i][0][2]][train[i][0][0]] += 1/(len(train)-sth_counter)
     # olasilik hesaplanacak !!!!!!
     return emission_list
 
-def viterbi(init_prob, trans_prob, em_prob):
+def viterbi(init_prob, trans_prob, em_prob, test, mapping):
+    #test[i][0][1] includes wrong part
+    char_list=[]
+    for i in range(len(test)):
+        val, v_init = viterbi_init(init_prob, em_prob, test[i][0][2], mapping)
+        char_list.append(val[0])
     return None
+
+def viterbi_init(I, em_prob, test, mapping):
+    v_init = {}
+    for i in mapping:
+        v_init[i] = I[i] * em_prob[test][i]
+    val = max(v_init.items(), key=operator.itemgetter(1))
+    a=1
+
+    return val, v_init
 
 
 #import matplotlib.pyplot as plt
@@ -59,5 +75,6 @@ for i in range(len(train)):
 init_prob = Start_with_prob(train, mapping, sth_counter)
 trans_prob = Transition_prob(train, mapping, sth_counter)
 em_prob = Emission_prob(train, mapping, sth_counter)
+viterbi(init_prob, trans_prob, em_prob,test, mapping)
 a = 1
 
