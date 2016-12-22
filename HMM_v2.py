@@ -1,9 +1,9 @@
-from hmmlearn import hmm
 import numpy as np
 import pandas as pd
 import string
 import operator
 import copy
+
 
 """
 1. 0 olasılık değeri donmesin Laplace Smoothing hepsine mi yapilmali ? Yoksa sadece 0 donenlere mi?
@@ -56,6 +56,18 @@ def Transition_prob(train, mapping, sth_counter):
     trans_list = laplace_smoothing(trans_list, tmp_prob,len(train)-sth_counter, mapping)
     return trans_list
 
+def dictToFile(dict_list, mapping):
+
+    thefile = open('test.txt', 'w')
+    for i in sorted(mapping):
+        thefile.write("%s " % i)
+    thefile.write("\n")
+    for i in sorted(mapping):
+        for j in sorted(mapping):
+            thefile.write("%s " % dict_list[i][j])
+        thefile.write("\n")
+    return None
+
 def Emission_prob(train, mapping, sth_counter):
     # create nested mapping list
     emission_list = {}
@@ -72,6 +84,7 @@ def Emission_prob(train, mapping, sth_counter):
             emission_list[train[i][0]][train[i][1]] += 1 #a harfi gorulmesi gerekirken b harfinin gorulmesi
     #Laplace Smoothing part
     emission_list = laplace_smoothing(emission_list, tmp_emission_list, len(train)-sth_counter, mapping)
+    dictToFile(emission_list, mapping)
     return emission_list
 
 def laplace_smoothing(prob, tmp_prob, vocab_num, mapping):
@@ -127,6 +140,59 @@ def viterbi_init(I, prob, test, mapping):
 
     return val, v_init
 
+def FP_TN_words(test, result):
+    """
+    dogru yanlis harf sayisini hesapla
+    :param train:
+    :param result:
+    :return:
+    """
+    fp = 0
+    tn = 0
+    for i in range(len(test)):
+        if(test[i][0] != '_' and test[i][0] == result[i]):
+            fp += 1
+        elif(test[i][0] != '_' and test[i][0] != result[i]):
+            tn += 1
+    return fp, tn
+def b_FP_TN_words(train):
+    """
+    dogru yanlis harf sayisini hesapla
+    :param train:
+    :param result:
+    :return:
+    """
+    fp = 0
+    tn = 0
+    for i in range(len(train)):
+        if(train[i][0] != '_' and train[i][0] == train[i][1]):
+            fp += 1
+        elif(train[i][0] != '_' and train[i][0] != train[i][1]):
+            tn += 1
+    return fp, tn
+def b_FP_TN_sentence(train):
+    """
+    dogru ve yanlis ogrenilmis kelime sayisi
+    :param train:
+    :param result:
+    :return:
+    """
+    fp = 0
+    tn = 0
+    tmp_t = ""
+    tmp_r = ""
+    for i in range(len(train)):
+        if(train[i][0] != '_'):
+            tmp_t += train[i][0]
+            tmp_r += train[i][1]
+        elif(train[i][0] == '_'):
+            if(tmp_t == tmp_r and tmp_t !="" and tmp_r != ""):
+                fp += 1
+            elif(tmp_t != tmp_r and tmp_t !="" and tmp_r != ""):
+                tn += 1
+            tmp_r = ""
+            tmp_t = ""
+    return fp, tn
 
 #import matplotlib.pyplot as plt
 sth_counter = 0 # _ _ lerin sayisina bakilacak
@@ -141,6 +207,12 @@ for i in range(len(train)):
 init_prob = Start_with_prob(train, mapping, sth_counter)
 trans_prob = Transition_prob(train, mapping, sth_counter)
 em_prob = Emission_prob(train, mapping, sth_counter)
-viterbi(init_prob, trans_prob, em_prob,test, mapping)
+result = viterbi(init_prob, trans_prob, em_prob,test, mapping)
+fp_s_b, tn_s_b = b_FP_TN_sentence(train)
+fp_w_b, tn_w_b = b_FP_TN_words(train)
+fp_w, tn_w = FP_TN_words(test,result)
+print("sirasiyla dogru ve yanlis kelime sonuclari: ", fp_s_b, tn_s_b, (fp_s_b/(fp_s_b+tn_s_b)))
+print("sirasiyla dogru ve yanlis harf sonuclari: ", fp_w_b, tn_w_b, (fp_w_b/(fp_w_b+tn_w_b)))
+print("Viterbi'den sonra sirasiyla dogru ve yanlis kelime sonuclari: ", fp_w, tn_w, (fp_w/(fp_w+tn_w)))
 a = 1
 
