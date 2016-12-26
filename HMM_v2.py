@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 import string
@@ -6,7 +7,7 @@ import copy
 
 
 """
-1. 0 olasılık değeri donmesin diye Laplace Smoothing hepsine mi uygulandi.
+1. 0 olasılık değeri donmesin diye Laplace Smoothing hepsine uygulandi.
 """
 
 def Start_with_prob(train, mapping, sth_counter):
@@ -251,11 +252,7 @@ def TP_FN_sentence(test, result):
             tmp_r = ""
             tmp_t = ""
     return tp, fn
-
-
-
-
-sth_counter = 0 # _ _ lerin sayisina bakilacak
+sth_counter = 0 # _ lerin sayisina bakilacak
 docs = pd.read_csv("docs.csv", header=None)
 test = docs.values[0:19999,:]
 train = docs.values[19999:,:]
